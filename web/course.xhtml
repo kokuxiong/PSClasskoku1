@@ -1,0 +1,183 @@
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                template="template.xhtml"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="myTitle">
+        #{msg.label_course}
+    </ui:define>
+    <ui:define name="custom_css">
+        <h:outputStylesheet name="css/bootstrap-switch.min.css"/>
+    </ui:define>
+
+    <ui:define name="custom_js">
+        <h:outputScript name="js/bootstrap-switch.min.js" />
+    </ui:define>
+
+    <ui:define name="content">
+        <!--<div class="container" style="margin-top: 80px;">-->
+        <div class="row">
+            <h:panelGroup id="pnlGrpBtn" layout="block" styleClass="col-lg-10">
+                <div class="row">
+                    <div class="form-group col-lg-6">
+                        <h:commandButton value="#{msg.label_new}" styleClass="btn btn-primary" 
+                                         disabled="#{c_course.pageStatusEditing 
+                                                     or c_course.pageStatusReadOnly
+                                                     or c_course.proccessUpdate}">
+                            <f:ajax event="click" execute="@this" render="pgnGrp @this clear" 
+                                    onevent="resetCheckbox" listener="#{c_course.startInsert}"/>
+                        </h:commandButton>
+                        <h:commandButton id="clear" value="#{msg.label_clear}" styleClass="btn btn-danger"
+                                         actionListener="#{c_course.clearPage()}" immediate="true" disabled="#{c_course.pageStatusInit}">
+                            <f:ajax   resetValues="true" execute="@this" render="@form" 
+                                      onevent="resetCheckbox" />
+                        </h:commandButton>
+                        <a href="#myHeadPhoto" role="button" data-target="#myModal" class="btn btn-info" data-toggle="modal">
+                            #{msg.label_execute}
+                        </a>
+                    </div>  
+                    <div class="form-group col-lg-6">
+                        <h:messages    errorClass="input-group-addon btn btn-danger"
+                                       infoClass="input-group-addon btn btn-success" showDetail="true" showSummary="false"
+                                       style="color: #ffffff" />
+                    </div>
+
+                </div>
+            </h:panelGroup>
+        </div>
+        <div class="row">
+            <h:panelGroup id="pgnGrp" layout="block" class="panel panel-info">
+                <div class="panel-heading">編集エリア</div>
+                <div class="panel-body">
+
+                    <div class="bs-callout bs-callout-danger" id="callout-glyphicons-dont-mix">
+                        <h4> <h:outputLabel value="編集モード：#{c_course.processText}"/></h4>
+                    </div>
+
+                    <div class="form-group col-lg-6">
+                        <div class="input-group">
+                            <div class="input-group-addon" >コース名</div>
+                            <h:inputText id="txtCourseName" value="#{c_course.editingCourse.couName}" 
+                                         required="true" requiredMessage="コース名は必須入力です。"
+                                         disabled="#{not c_course.pageStatusEditing or c_course.proccessDelete}" styleClass="form-control" maxlength="20">
+
+                                <f:ajax execute="@this" listener="#{c_course.courseNameChanged}" render="msgCourseName @this"/>
+                            </h:inputText>
+                            <h:message  id="msgCourseName" for="txtCourseName"    errorClass="input-group-addon btn btn-danger"
+                                        infoClass="input-group-addon btn btn-success" showDetail="true" showSummary="false"
+                                        style="color: #ffffff"/>
+                            <!--<h:message for="txtCourseName"  styleClass="input-group-addon btn btn-danger" style="color: #ffb054;"  />-->
+                        </div>
+                        <br/>
+                        <div class="input-group">
+                            <div class="input-group-addon" >単位</div>
+                            <h:inputText id="txtScore" value="#{c_course.editingCourse.score}" 
+                                         required="true"  requiredMessage="単位は必須入力です。"
+                                         converterMessage="3桁以内の数字を入力してください。"
+                                         validatorMessage="１から２０までの数字を入力してください。"
+                                         disabled="#{not c_course.pageStatusEditing or c_course.proccessDelete}" styleClass="form-control" maxlength="3">
+                                <f:convertNumber maxFractionDigits="0" maxIntegerDigits="3"/>
+                                <f:validateLongRange minimum="1" maximum="20"/>
+                            </h:inputText>
+                            <h:message for="txtScore"  styleClass="input-group-addon btn btn-danger" style="color: #ffb054;"  />
+                        </div>
+                        <br/>
+                        <div class="input-group">
+                            <div class="input-group-addon">必須</div>
+                            <h:selectBooleanCheckbox id="chkRequire"
+                                                     value="#{c_course.editingCourse.requiredB}"
+                                                     disabled="#{not c_course.pageStatusEditing or c_course.proccessDelete}"
+                                                     styleClass="form-control" 
+                                                     pt:data-on-color="primary" 
+                                                     pt:data-off-color="danger" 
+                                                     pt:data-on-text="YES" 
+                                                     pt:data-off-text="NO" 
+                                                     pt:switch-check="true"
+                                                     >
+                            </h:selectBooleanCheckbox>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <h:dataTable value="#{c_course.courses}" var="cou" styleClass="table table-hover">
+
+                            <h:column>
+                                <f:facet name="header">
+                                    <h:outputLabel value="編集" />
+                                </f:facet>
+                                <h:commandButton value="編集" styleClass="btn btn-sm btn-info"
+
+                                                 disabled="#{c_course.pageStatusEditing}">
+                                    <f:ajax execute="@this" listener="#{c_course.rowSelect(cou,'U')}" 
+                                            onevent="resetCheckbox" render=":myForm:pgnGrp :myForm:pnlGrpBtn"/>
+                                </h:commandButton>
+
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">
+                                    <h:outputLabel value="削除" />
+                                </f:facet>
+                                <h:commandButton value="削除" styleClass="btn btn-sm btn-info"
+
+                                                 disabled="#{c_course.pageStatusEditing}">
+                                    <f:ajax execute="@this" listener="#{c_course.rowSelect(cou,'D')}" 
+                                            onevent="resetCheckbox" render=":myForm:pgnGrp :myForm:pnlGrpBtn"/>
+                                </h:commandButton>
+
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">
+                                    <h:outputLabel value="ID"/>
+                                </f:facet>
+                                <h:outputLabel value="#{cou.couId}"/>
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">
+                                    <h:outputLabel value="課程名"/>
+                                </f:facet>
+                                <h:outputLabel value="#{cou.couName}"/>
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">
+                                    <h:outputLabel value="単位"/>
+                                </f:facet>
+                                <h:outputLabel value="#{cou.score}"/>
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">
+                                    <h:outputLabel value="必須"/>
+                                </f:facet>
+                                <!--<h:outputText styleClass="glyphicon glyphicon-star" rendered="#{cou.requiredB}"/>-->
+                                <h:graphicImage name="image/flag.png" style="width: 20px;height: 20px" rendered="#{cou.requiredB}"/>
+                            </h:column>
+
+                        </h:dataTable>
+                    </div>
+                </div>
+            </h:panelGroup>
+        </div>
+        <!--</div>-->
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"></span></button>
+                        <h4 class="modal-title" id="myModalLabel">#{c_course.processText}確認</h4>
+                    </div>
+                    <div class="modal-body">
+                        #{msg.label_question_comfirm}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <h:commandButton id="btnExcute" value="#{msg.label_execute}" styleClass="btn btn-info"
+                                         actionListener="#{c_course.commitData}"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>

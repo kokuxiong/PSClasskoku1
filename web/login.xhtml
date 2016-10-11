@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <h:head>
+        <title>PSClass_Login</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <h:outputStylesheet name="css/bootstrap.min.css"/>
+        <h:outputStylesheet name="css/bootstrap-theme.min.css"/>
+        <h:outputStylesheet name="css/carousel.css"/>
+        <h:outputStylesheet name="css/signin.css"/>
+        <h:outputScript name="js/jquery-1.11.2.js"/>
+        <h:outputScript name="js/bootstrap.min.js"/>
+    </h:head>
+    <h:body>
+        <div class="container">
+            
+            <h:form  id="myFormLogin" class="form-signin">
+                <h2 class="form-signin-heading">Please sign in</h2>
+                <h:outputLabel for="inputEmail" styleClass="sr-only"  />
+                <h:inputText  id="inputEmail" styleClass="form-control" value="#{c_login.loginId}" pt:placeholder="#{msg.html_email}" />
+                <h:outputLabel for="inputPassword" styleClass="sr-only"  />
+                <h:inputSecret  id="inputPassword" styleClass="form-control" value="#{c_login.password}" pt:placeholder="#{msg.html_password}" />
+                <div class="checkbox">
+                    <h:outputLabel>
+                        <h:selectBooleanCheckbox value="false"/> Remember me
+                    </h:outputLabel>
+                </div>
+                <h:selectOneRadio value="#{c_login.setLoginType}">
+                    <f:selectItem itemValue="1" itemLabel="#{msg.label_student}"/>
+                    <f:selectItem itemValue="2" itemLabel="#{msg.label_teacher}"/>
+                </h:selectOneRadio>
+                <h:commandButton styleClass="btn btn-lg btn-primary btn-block"
+                                  id="btnCmdBtn" action="#{c_login.doLogin()}" type="submit" value="Sign in" />
+                <br/>
+                <h:message  id="msgCommandBtnl" for="btnCmdBtn"    errorClass="input-group-addon btn btn-danger"
+                                            infoClass="input-group-addon btn btn-success" showDetail="true" showSummary="true"
+                                            style="color: #ffffff"/>
+            </h:form>
+        </div> <!-- /container -->
+    </h:body>
+
+</html>

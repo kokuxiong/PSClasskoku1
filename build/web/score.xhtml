@@ -1,0 +1,163 @@
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+                template="template.xhtml"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <ui:define name="myTitle">
+        #{msg.html_title_min}
+    </ui:define>
+
+
+
+    <ui:define name="content">
+
+        <script>
+            var showChart = function (arg) {
+                console.log(arg);
+                if (arg.status === "success") {
+
+                    var hidChartJsonData = $("#myForm\\:hidJsonData");
+                    var chartData = $.parseJSON(hidChartJsonData.val());
+                    //chart表示
+                    $('#highchart').highcharts({
+                        chart: {
+                            polar: true,
+                            type: 'line'
+                        },
+                        title: {
+                            text: 'Budget vs spending',
+                            x: -80
+                        },
+                        pane: {
+                            size: '80%'
+                        },
+                        xAxis: {
+                            categories: chartData.categories,
+                            tickmarkPlacement: 'on',
+                            lineWidth: 0
+                        },
+                        yAxis: {
+                            gridLineInterpolation: 'polygon',
+                            lineWidth: 0,
+                            min: 0
+                        },
+                        tooltip: {
+                            shared: true
+
+                        },
+                        legend: {
+                            align: 'right',
+                            verticalAlign: 'top',
+                            y: 70,
+                            layout: 'vertical'
+                        },
+                        series: chartData.series
+
+                    });
+                }
+            }
+        </script>
+
+        <div class="row">
+            <h:panelGroup id="pgnGrp" layout="block" class="panel panel-success">
+                <div class="panel-heading">編集エリア</div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <h:selectOneMenu  
+                                                    value="#{c_score.editingStudent}"
+                                                    required="true" requiredMessage="学生を選択してください"
+                                                    disabled="#{c_score.pageStatusEditing}" styleClass="form-control">
+                                                    <f:ajax event="change"  execute="@this" render="@this ddlCourse"/>
+                                                    <f:converter converterId="studentConverter"/>
+
+                                                    <f:selectItem itemValue="#{null}" itemLabel="選択なし"/>
+                                                    <f:selectItems value="#{c_score.students}" var="stu"  itemValue="#{stu}"
+                                                                   itemLabel="#{stu.stuName}"/>
+                                                </h:selectOneMenu>
+                                            </td>
+                                            <td>
+                                                <h:selectOneMenu id="ddlCourse" 
+                                                                 value="#{c_score.editingPcs}"
+                                                                 required="true" requiredMessage="コースを選択してください"
+                                                                 disabled="#{c_score.pageStatusEditing}" styleClass="form-control">
+                                                    <f:selectItem itemValue="#{-1}" itemLabel="選択なし"/>
+                                                    <f:selectItems value="#{c_score.editingStudent.pcsList}" var="psc"  itemValue="#{psc.PCourseSelectionPK.tranId}"
+                                                                   itemLabel="#{psc.course.couName}"/>
+                                                </h:selectOneMenu>
+                                            </td>
+                                            <td>
+                                                <div class="input-group">
+                                                    <span class="input-group-addon" >得点</span>
+                                                    <h:inputText  id="scoreInputText" styleClass="form-control" value="#{c_score.scoreInsertData}"
+                                                                  required="true"
+                                                                  requiredMessage="得点を入力してください"/>
+
+                                                    <span class="input-group-btn">
+                                                        <h:commandButton  value="登録" styleClass="btn btn-primary" >
+                                                            <f:ajax event="click" 
+                                                                    listener="#{c_score.scoreInsert}" execute="@form" render="@form"/>
+                                                        </h:commandButton>
+                                                    </span>
+
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                            <br/>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <h:dataTable id="studentScoreTable" value="#{c_score.stuScores}" var="stu" styleClass="table table-bordered">
+                                        <h:column>
+                                            <h:commandButton value="profile" styleClass="btn btn-info">
+                                                <f:ajax execute="@this" listener="#{c_score.showProfile(stu.key)}" 
+                                                        onevent="showChart" render=":myForm:hidJsonData" />
+                                            </h:commandButton>
+                                        </h:column>
+                                        <h:column>
+                                            <f:facet name="header">
+                                                <h:outputLabel value="氏名"/>
+                                            </f:facet>
+                                            <h:outputLabel value="#{stu.key.stuName}"/>
+                                        </h:column>
+
+                                        <c:forEach items="#{c_score.allCourse}" var="cou">
+                                            <h:column>
+                                                <f:facet name="header">
+                                                    <h:outputLabel value="#{cou.couName}"/>
+                                                </f:facet>
+                                                <h:outputLabel value="#{c_score.getLastScore(stu.key, cou)}"
+                                                               rendered="#{c_score.isBelowZero(stu.key, cou)}"/>
+                                            </h:column> 
+                                        </c:forEach>
+                                    </h:dataTable>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <h:messages   errorClass="input-group-addon btn btn-danger"
+                                          infoClass="input-group-addon btn btn-success" showDetail="true" showSummary="false"
+                                          style="color: #ffffff" />  
+                        </div>
+                        <div  class="col-lg-6">
+                            <div id="highchart"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </h:panelGroup>
+        </div>
+        <h:inputHidden id="hidJsonData" value="#{c_score.jsonData}"/>
+    </ui:define>
+
+</ui:composition>

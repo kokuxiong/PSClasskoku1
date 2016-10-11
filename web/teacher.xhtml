@@ -1,0 +1,235 @@
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="template.xhtml"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+    <ui:define name="myTitle">
+        #{msg.label_editTeacher}
+    </ui:define>
+    <ui:define name="custom_css">
+        <h:outputStylesheet name="css/demo.css"/>
+        <h:outputStylesheet name="css/bootstrap-switch.min.css"/>
+    </ui:define>
+
+
+    <ui:define name="custom_js">
+        <h:outputScript name="js/bootstrap-switch.min.js" />
+    </ui:define>
+
+    <ui:define name="content">
+
+
+
+
+        <div class="row">
+            <div class="col-lg-10">
+                <h:panelGroup id="pnlGrpBtn" layout="block" styleClass="col-lg-10">
+                    <div class="row">
+                        <div class="form-group col-lg-6">
+                            <h:commandButton value="#{msg.label_new}" styleClass="btn btn-primary" 
+                                             disabled="#{c_teacher.pageStatusEditing or
+                                                         c_teacher.pageStatusReadOnly or
+                                                         c_teacher.proccessUpdate}">
+                                <f:ajax resetValues="true" event="click" execute="@this" render="pgnGrp @this clear excute" 
+                                        onevent="resetPlugin" listener="#{c_teacher.startInsert()}"/>
+
+                            </h:commandButton>
+                            <h:commandButton id="clear" value="#{msg.label_clear}" styleClass="btn btn-danger"
+                                             immediate="true"  disabled="#{c_teacher.pageStatusInit}"
+                                             actionListener="#{c_teacher.clearPage()}">
+                                <f:ajax   resetValues="true" execute="@this" render="@form" 
+                                          onevent="resetCheckbox" />
+
+                            </h:commandButton>
+                            <h:commandButton id="excute" value="#{msg.label_execute}" 
+                                             disabled="#{c_teacher.pageStatusInit or c_teacher.pageStatusReadOnly}" styleClass="btn btn-info" 
+                                             actionListener="#{c_teacher.commitData()}"/>
+
+
+                        </div>  
+                        <div class="form-group col-lg-6">
+                            <h:messages    errorClass="input-group-addon btn btn-danger"
+                                           infoClass="input-group-addon btn btn-success" showDetail="true" showSummary="false"
+                                           style="color: #ffffff" />
+                        </div>
+
+                    </div>
+                </h:panelGroup>
+
+            </div>
+        </div>
+        <div class="row">
+            <h:panelGroup id="pgnGrp" layout="block" class="panel panel-info">
+                <div class="panel-heading">編集エリア</div>
+                <div class="panel-body">
+                    <div class="col-lg-6">
+                        <div class="form-group col-lg-12">
+                            <div class="input-group">
+                                <div class="input-group-addon" >先生名前</div>
+                                <h:inputText id="txtStudentName" value="#{c_teacher.editingTeacher.teaName}" 
+                                             required="true" requiredMessage="先生名前は必須入力です。"
+                                             disabled="#{not c_teacher.pageStatusEditing}" styleClass="form-control" maxlength="20">
+
+
+                                </h:inputText>
+                                <h:message  id="msgStudentName" for="txtStudentName"    errorClass="input-group-addon btn btn-danger"
+                                            infoClass="input-group-addon btn btn-success" showDetail="true" showSummary="false"
+                                            style="color: #ffffff"/>
+                            </div>
+                        </div>
+
+                        <div class="form-group col-lg-12">
+                            <div class="input-group">
+                                <div class="input-group-addon">性別</div>
+                                <h:selectBooleanCheckbox id="chkRequire"
+                                                         value="#{c_teacher.editingTeacher.sexB}"
+                                                         disabled="#{not c_teacher.pageStatusEditing}"
+                                                         styleClass="form-control" 
+                                                         pt:data-on-color="primary" 
+                                                         pt:data-off-color="danger" 
+                                                         pt:data-on-text="男" 
+                                                         pt:data-off-text="女" 
+                                                         pt:switch-check="true"
+                                                         >
+                                </h:selectBooleanCheckbox>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group col-lg-12">
+                            <div class="input-group date" datepicker="1">
+                                <div class="input-group-addon" >誕生日</div>
+                                <h:inputText  id="txtBirthday" value="#{c_teacher.editingTeacher.birthday}" 
+                                              required="true" requiredMessage="誕生日は必須入力です。"
+                                              disabled="#{not c_teacher.pageStatusEditing }" styleClass="form-control" maxlength="10"
+                                              pt:placeholder="#{msg.html_birthday}">
+                                    <f:convertDateTime pattern="yyyy/MM/dd"/>
+                                </h:inputText>
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                                <h:message   id="msgBirthday" for="txtBirthday"    errorClass="input-group-addon btn btn-danger"
+                                           infoClass="input-group-addon btn btn-success" showDetail="true" showSummary="false"
+                                           style="color: #ffffff"/>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group col-lg-12">
+                            <div class="input-group">
+                                <div class="input-group-addon" >住所</div>
+                                <h:inputText id="txtAddress" value="#{c_teacher.editingTeacher.address}" 
+                                             disabled="#{not c_teacher.pageStatusEditing}" styleClass="form-control" maxlength="200">
+                                </h:inputText>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group col-lg-12">
+                            <div class="input-group">
+                                <div class="input-group-addon" >電話</div>
+                                <h:inputText id="txtMobile" value="#{c_teacher.editingTeacher.mobile}" 
+                                             disabled="#{not c_teacher.pageStatusEditing}" styleClass="form-control" maxlength="15">
+                                </h:inputText>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group col-lg-12">
+                            <div class="input-group">
+                                <div class="input-group-addon" >メール</div>
+                                <h:inputText id="txtEmail" value="#{c_teacher.editingTeacher.email}" 
+                                             required="true" requiredMessage="メールは必須入力です。"
+                                             disabled="#{not c_teacher.pageStatusEditing}" styleClass="form-control" maxlength="50">
+                                    <f:ajax execute="@this" listener="#{c_teacher.studentEmailChanged()}" render="msgEmail @this"/>
+                                </h:inputText>
+                                <h:message  id="msgEmail" for="txtEmail"    errorClass="input-group-addon btn btn-danger"
+                                            infoClass="input-group-addon btn btn-success" showDetail="true" showSummary="false"
+                                            style="color: #ffffff"/>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group col-lg-12">
+                            <div class="input-group">
+                                <div class="input-group-addon" >パスワード</div>
+                                <h:inputSecret id="txtPassword" value="#{c_teacher.editingTeacher.password}" 
+                                               required="true" requiredMessage="パスワードは必須入力です。"
+                                               disabled="#{not c_teacher.pageStatusEditing}" styleClass="form-control" maxlength="8">
+                                </h:inputSecret>
+                                <h:message  id="msgPassword" for="txtPassword"    errorClass="input-group-addon btn btn-danger"
+                                            infoClass="input-group-addon btn btn-success" showDetail="true" showSummary="false"
+                                            style="color: #ffffff"/>
+
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <h:dataTable value="#{c_teacher.teachers}" var="cou" styleClass="table table-hover">
+
+                                <h:column>
+                                    <f:facet name="header">
+                                        <h:outputLabel value="編集" />
+                                    </f:facet>
+                                    <h:commandButton value="編集" styleClass="btn btn-sm btn-info"
+                                                     disabled="#{c_teacher.pageStatusEditing}">
+                                        <f:ajax execute="@this" listener="#{c_teacher.rowSelectStudent(cou)}" 
+                                                onevent="resetCheckbox" render=":myForm:pgnGrp :myForm:pnlGrpBtn"/>
+
+                                    </h:commandButton>
+
+                                </h:column>
+
+                                <h:column>
+                                    <f:facet name="header">
+                                        <h:outputLabel value="ID"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{cou.id}"/>
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">
+                                        <h:outputLabel value="先生名前"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{cou.teaName}"/>
+                                </h:column>
+                                <h:column  class="columnsex">
+                                    <f:facet name="header" >
+                                        <h:outputLabel value="性別" class="columnsex"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{cou.sex}" />
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">
+                                        <h:outputLabel value="誕生日"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{cou.birthday}">
+                                        <f:convertDateTime pattern="yyyy/MM/dd"/>
+                                    </h:outputLabel>
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">
+                                        <h:outputLabel value="住所"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{cou.address}"/>
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">
+                                        <h:outputLabel value="電話"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{cou.mobile}"/>
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">
+                                        <h:outputLabel value="メール"/>
+                                    </f:facet>
+                                    <h:outputLabel value="#{cou.email}"/>
+                                </h:column>
+
+
+
+                            </h:dataTable>
+                        </div>
+                    </div>
+                </div>
+            </h:panelGroup>
+        </div>
+    </ui:define>
+
+</ui:composition>
+
